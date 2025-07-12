@@ -3,13 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <title>Summer Movie Draft 2025</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://www.gstatic.com/charts/loader.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 900px; margin: 20px auto; padding: 0 15px; }
-    table { border-collapse: collapse; width: 100%; margin-bottom: 30px; }
-    th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
-    th { background: #f0f0f0; }
-    #cumulative_chart { width: 100%; height: 500px; }
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 0 15px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 30px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    th {
+      background: #f0f0f0;
+    }
+    #cumulative_chart {
+      width: 100%;
+      height: 500px;
+    }
   </style>
 </head>
 <body>
@@ -30,11 +49,6 @@
   const summaryCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnYWGxIRDHGb1vIHXDhuOnX3d8nULXEaFrOGmgUXWPdDfJCbp8v-Vb911xEJirIKTIj2U-N3Nwy0kS/pub?gid=1562983144&single=true&output=csv';
   const cumulativeCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnYWGxIRDHGb1vIHXDhuOnX3d8nULXEaFrOGmgUXWPdDfJCbp8v-Vb911xEJirIKTIj2U-N3Nwy0kS/pub?gid=482616797&single=true&output=csv';
 
-  // Simple CSV parser - splits lines & commas (no quotes handling)
-  function parseCsv(text) {
-    return text.trim().split('\n').map(line => line.split(','));
-  }
-
   // Render HTML table from 2D array
   function renderTable(data) {
     if (!data || !data.length) return 'No data to display.';
@@ -54,62 +68,69 @@
     try {
       const res = await fetch(summaryCsvUrl);
       const text = await res.text();
-      const data = parseCsv(text);
-      document.getElementById('leaderboard_table').innerHTML = renderTable(data);
-    } catch(e) {
+      console.log('Summary CSV fetched:', text.slice(0, 200));
+      const parsed = Papa.parse(text, { skipEmptyLines: true });
+      console.log('Parsed Summary CSV:', parsed.data);
+      document.getElementById('leaderboard_table').innerHTML = renderTable(parsed.data);
+    } catch (e) {
       document.getElementById('leaderboard_table').textContent = 'Failed to load leaderboard.';
-      console.error(e);
+      console.error('Error loading leaderboard:', e);
     }
   }
 
-  async function drawCumulativeChart() {
+  function drawCumulativeChart(data) {
+    const dataTable = new google.visualization.DataTable();
+
+    // Add columns: first column string (date), others numbers (players)
+    dataTable.addColumn('string', data[0][0]); // Date column header
+    for (let i = 1; i < data[0].length; i++) {
+      dataTable.addColumn('number', data[0][i]);
+    }
+
+    // Add rows
+    for (let i = 1; i < data.length; i++) {
+      const row = [data[i][0]];
+      for (let j = 1; j < data[i].length; j++) {
+        const val = Number(data[i][j].replace(/[$,]/g, ''));
+        row.push(isNaN(val) ? 0 : val);
+      }
+      dataTable.addRow(row);
+    }
+
+    const options = {
+      title: 'Cumulative Domestic Gross by Player',
+      curveType: 'function',
+      legend: { position: 'bottom' },
+      height: 500,
+      hAxis: { title: 'Date' },
+      vAxis: { title: 'Gross ($)', format: 'currency' }
+    };
+
+    const chart = new google.visualization.LineChart(document.getElementById('cumulative_chart'));
+    chart.draw(dataTable, options);
+    console.log('Chart drawn successfully');
+  }
+
+  async function loadAndDrawCumulativeChart() {
     try {
       const res = await fetch(cumulativeCsvUrl);
       const text = await res.text();
-      const data = parseCsv(text);
-
-      google.charts.load('current', { packages: ['corechart'] });
-      google.charts.setOnLoadCallback(() => {
-        const dataTable = new google.visualization.DataTable();
-
-        // Date column
-        dataTable.addColumn('string', data[0][0]);
-        // Player columns
-        for (let i = 1; i < data[0].length; i++) {
-          dataTable.addColumn('number', data[0][i]);
-        }
-
-        // Rows
-        for (let i = 1; i < data.length; i++) {
-          const row = [data[i][0]];
-          for (let j = 1; j < data[i].length; j++) {
-            const val = Number(data[i][j].replace(/[$,]/g, ''));
-            row.push(isNaN(val) ? 0 : val);
-          }
-          dataTable.addRow(row);
-        }
-
-        const options = {
-          title: 'Cumulative Domestic Gross by Player',
-          curveType: 'function',
-          legend: { position: 'bottom' },
-          height: 500,
-          hAxis: { title: 'Date' },
-          vAxis: { title: 'Gross ($)', format: 'currency' }
-        };
-
-        const chart = new google.visualization.LineChart(document.getElementById('cumulative_chart'));
-        chart.draw(dataTable, options);
-      });
+      console.log('Cumulative CSV fetched:', text.slice(0, 200));
+      const parsed = Papa.parse(text, { skipEmptyLines: true });
+      console.log('Parsed Cumulative CSV:', parsed.data);
+      drawCumulativeChart(parsed.data);
     } catch (e) {
       document.getElementById('cumulative_chart').textContent = 'Failed to load chart.';
-      console.error(e);
+      console.error('Error loading cumulative chart:', e);
     }
   }
 
-  // Load everything
+  // Load leaderboard right away
   loadLeaderboard();
-  drawCumulativeChart();
+
+  // Load Google Charts, then load and draw cumulative chart
+  google.charts.load('current', { packages: ['corechart'] });
+  google.charts.setOnLoadCallback(loadAndDrawCumulativeChart);
 
 </script>
 
