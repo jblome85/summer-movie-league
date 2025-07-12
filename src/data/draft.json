@@ -1,0 +1,27 @@
+{
+  "players": {
+    "Jon": [
+      "A Desert", "Friendship", "Mission: Impossible - The Final Reckoning",
+      "Dangerous Animals", "Elio", "The Naked Gun", "Weapons",
+      "Caught Stealing", "The Roses"
+    ],
+    "Ryne": [
+      "Fight or Flight", "Hurry Up Tomorrow", "Bring Her Back",
+      "How to Train Your Dragon", "The Fantastic Four", "Clika", "Eden"
+    ],
+    "Josh": [
+      "Clown in a Cornfield", "Shadow Force", "Final Destination: Bloodlines",
+      "Ballerina", "28 Years Later", "Jurassic World: Rebirth",
+      "I Know What You Did Last Summer", "Freakier Friday", "Americana"
+    ],
+    "Dan": [
+      "Karate Kid: Legends", "The Phoenician Scheme", "The Ritual",
+      "Materialists", "F1", "M3GAN 2.0", "Smurfs", "The Bad Guys 2", "My Mother's Wedding"
+    ],
+    "Zac": [
+      "Thunderbolts*", "Juliet & Romeo", "Lilo & Stitch",
+      "I Don't Understand You", "Sorry, Baby", "Superman",
+      "Nobody 2", "The Toxic Avenger"
+    ]
+  }
+}

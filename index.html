@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Summer Movie Draft 2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Summer Movie Draft 2025</h1>
+
+    <section id="leaderboard">
+      <h2>Leaderboard</h2>
+      <div id="leaderboard_table"></div>
+    </section>
+
+    <section id="chart">
+      <h2>Cumulative Gross by Player</h2>
+      <div id="cumulative_chart" style="width: 100%; height: 500px;"></div>
+    </section>
+
+    <footer>
+      <p>Last updated when page was loaded. Data powered by <a href="https://sheets.google.com" target="_blank">Google Sheets</a>.</p>
+    </footer>
+  </div>
+
+  <script>
+    // 🔁 REPLACE THESE WITH YOUR OWN PUBLISHED CSV URLS
+    const summaryCsvUrl = 'PASTE_YOUR_SUMMARY_CSV_URL_HERE';
+    const cumulativeCsvUrl = 'PASTE_YOUR_PLAYERCUMULATIVE_CSV_URL_HERE';
+
+    google.charts.load('current', {'packages':['table', 'corechart']});
+    google.charts.setOnLoadCallback(drawDashboard);
+
+    async function drawDashboard() {
+      await drawLeaderboard();
+      await drawCumulativeChart();
+    }
+
+    async function drawLeaderboard() {
+      const csv = await fetchCsv(summaryCsvUrl);
+      const dataArray = parseCsv(csv);
+
+      const dataTable = new google.visualization.DataTable();
+      dataTable.addColumn('string', 'Player');
+      dataTable.addColumn('number', 'Total Gross');
+      dataTable.addColumn('number', '# Movies');
+      dataTable.addColumn('number', 'Avg Per Movie');
+      dataTable.addColumn('number', 'Rank');
+
+      for (let i = 1; i < dataArray.length; i++) {
+        const row = dataArray[i];
+        dataTable.addRow([
+          row[0],
+          Number(row[1]),
+          Number(row[2]),
+          Number(row[3]),
+          Number(row[4])
+        ]);
+      }
+
+      const table = new google.visualization.Table(document.getElementById('leaderboard_table'));
+      table.draw(dataTable, { showRowNumber: false, width: '100%' });
+    }
+
+    async function drawCumulativeChart() {
+      const csv = await fetchCsv(cumulativeCsvUrl);
+      const dataArray = parseCsv(csv);
+
+      const dataTable = new google.visualization.DataTable();
+      dataTable.addColumn('string', 'Date');
+
+      for (let j = 1; j < dataArray[0].length; j++) {
+        dataTable.addColumn('number', dataArray[0][j]);
+      }
+
+      for (let i = 1; i < dataArray.length; i++) {
+        const date = dataArray[i][0];
+        const row = [date];
+        for (let j = 1; j < dataArray[i].length; j++) {
+          row.push(Number(dataArray[i][j] || 0));
+        }
+        dataTable.addRow(row);
+      }
+
+      const options = {
+        title: 'Cumulative Domestic Gross by Player',
+        curveType: 'function',
+        legend: { position: 'bottom' },
+        height: 500
+      };
