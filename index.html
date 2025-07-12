@@ -52,13 +52,26 @@
   // Render HTML table from 2D array
   function renderTable(data) {
   if (!data || !data.length) return 'No data to display.';
+
+  // Extract header and rows separately
+  const header = data[0];
+  const rows = data.slice(1);
+
+  // Sort rows by Rank column (index 4), ascending numeric
+  rows.sort((a, b) => {
+    const rankA = Number(a[4]);
+    const rankB = Number(b[4]);
+    return rankA - rankB;
+  });
+
   let html = '<table><thead><tr>';
-  data[0].forEach(h => { html += `<th>${h}</th>`; });
+  header.forEach(h => { html += `<th>${h}</th>`; });
   html += '</tr></thead><tbody>';
-  for (let i = 1; i < data.length; i++) {
+
+  rows.forEach(row => {
     html += '<tr>';
-    data[i].forEach((cell, index) => {
-      // Format the 'Total Gross' and 'Avg Per Movie' columns as dollars
+    row.forEach((cell, index) => {
+      // Format 'Total Gross' (index 1) and 'Avg Per Movie' (index 3) as USD currency
       if (index === 1 || index === 3) {
         const num = Number(cell);
         const formatted = isNaN(num) ? cell : num.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
@@ -68,7 +81,8 @@
       }
     });
     html += '</tr>';
-  }
+  });
+
   html += '</tbody></table>';
   return html;
 }
