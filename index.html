@@ -65,29 +65,33 @@
       table.draw(dataTable, { showRowNumber: false, width: '100%' });
     }
 
-    async function drawCumulativeChart() {
-      const csv = await fetchCsv(cumulativeCsvUrl);
-      const dataArray = parseCsv(csv);
+   async function drawCumulativeChart() {
+  const csv = await fetchCsv(cumulativeCsvUrl);
+  const dataArray = parseCsv(csv);
 
-      const dataTable = new google.visualization.DataTable();
-      dataTable.addColumn('string', 'Date');
+  const dataTable = new google.visualization.DataTable();
+  dataTable.addColumn('string', 'Date');
 
-      for (let j = 1; j < dataArray[0].length; j++) {
-        dataTable.addColumn('number', dataArray[0][j]);
-      }
+  for (let j = 1; j < dataArray[0].length; j++) {
+    dataTable.addColumn('number', dataArray[0][j]);
+  }
 
-      for (let i = 1; i < dataArray.length; i++) {
-        const date = dataArray[i][0];
-        const row = [date];
-        for (let j = 1; j < dataArray[i].length; j++) {
-          row.push(Number(dataArray[i][j] || 0));
-        }
-        dataTable.addRow(row);
-      }
+  for (let i = 1; i < dataArray.length; i++) {
+    const date = dataArray[i][0];
+    const row = [date];
+    for (let j = 1; j < dataArray[i].length; j++) {
+      row.push(Number(dataArray[i][j] || 0));
+    }
+    dataTable.addRow(row);
+  }
 
-      const options = {
-        title: 'Cumulative Domestic Gross by Player',
-        curveType: 'function',
-        legend: { position: 'bottom' },
-        height: 500
-      };
+  const options = {
+    title: 'Cumulative Domestic Gross by Player',
+    curveType: 'function',
+    legend: { position: 'bottom' },
+    height: 500
+  };
+
+  const chart = new google.visualization.LineChart(document.getElementById('cumulative_chart'));
+  chart.draw(dataTable, options);
+}
