@@ -31,6 +31,20 @@
     const summaryCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnYWGxIRDHGb1vIHXDhuOnX3d8nULXEaFrOGmgUXWPdDfJCbp8v-Vb911xEJirIKTIj2U-N3Nwy0kS/pub?gid=1562983144&single=true&output=csv';
     const cumulativeCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnYWGxIRDHGb1vIHXDhuOnX3d8nULXEaFrOGmgUXWPdDfJCbp8v-Vb911xEJirIKTIj2U-N3Nwy0kS/pub?gid=482616797&single=true&output=csv';
 
+fetch(summaryCsvUrl)
+  .then(res => res.text())
+  .then(text => {
+    console.log('Summary CSV content:', text);
+  })
+  .catch(err => console.error('Error fetching summary CSV:', err));
+
+fetch(cumulativeCsvUrl)
+  .then(res => res.text())
+  .then(text => {
+    console.log('Cumulative CSV content:', text);
+  })
+  .catch(err => console.error('Error fetching cumulative CSV:', err));
+
     google.charts.load('current', {'packages':['table', 'corechart']});
     google.charts.setOnLoadCallback(drawDashboard);
 
