@@ -51,18 +51,27 @@
 
   // Render HTML table from 2D array
   function renderTable(data) {
-    if (!data || !data.length) return 'No data to display.';
-    let html = '<table><thead><tr>';
-    data[0].forEach(h => { html += `<th>${h}</th>`; });
-    html += '</tr></thead><tbody>';
-    for (let i = 1; i < data.length; i++) {
-      html += '<tr>';
-      data[i].forEach(cell => { html += `<td>${cell}</td>`; });
-      html += '</tr>';
-    }
-    html += '</tbody></table>';
-    return html;
+  if (!data || !data.length) return 'No data to display.';
+  let html = '<table><thead><tr>';
+  data[0].forEach(h => { html += `<th>${h}</th>`; });
+  html += '</tr></thead><tbody>';
+  for (let i = 1; i < data.length; i++) {
+    html += '<tr>';
+    data[i].forEach((cell, index) => {
+      // Format the 'Total Gross' and 'Avg Per Movie' columns as dollars
+      if (index === 1 || index === 3) {
+        const num = Number(cell);
+        const formatted = isNaN(num) ? cell : num.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+        html += `<td>${formatted}</td>`;
+      } else {
+        html += `<td>${cell}</td>`;
+      }
+    });
+    html += '</tr>';
   }
+  html += '</tbody></table>';
+  return html;
+}
 
   async function loadLeaderboard() {
     try {
